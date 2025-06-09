@@ -3,4 +3,5 @@ python-dotenv==1.0.0
 requests==2.31.0
 flask==3.0.0
 colorama==0.4.6
-markdown==3.5.2 
+markdown==3.5.2
+gunicorn==21.2.0 
