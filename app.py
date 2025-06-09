@@ -14,7 +14,7 @@ def chat():
     if not user_message:
         return jsonify({'error': 'No message provided'}), 400
     
-    response = chatbot.generate_response(user_message)
+    response = chatbot.generate_response(user_message, for_cli=False)
     return jsonify({'response': response})
 
 if __name__ == '__main__':

@@ -4,73 +4,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokémon Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
     <style>
+        :root {
+            --pokemon-red: #FF0000;
+            --pokemon-blue: #3B4CCA;
+            --pokemon-yellow: #FFDE00;
+            --pokemon-black: #2A2A2A;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
             background-color: #f0f0f0;
+            background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" fill="none" stroke="%23ddd" stroke-width="0.5"/></svg>');
         }
+
         .chat-container {
             max-width: 800px;
             margin: 0 auto;
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             padding: 20px;
+            border: 3px solid var(--pokemon-red);
         }
+
         .chat-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--pokemon-yellow);
+            padding-bottom: 20px;
         }
+
         .chat-header h1 {
-            color: #FF0000;
+            font-family: 'Press Start 2P', cursive;
+            color: var(--pokemon-red);
             margin: 0;
+            font-size: 24px;
+            text-shadow: 2px 2px var(--pokemon-yellow);
         }
+
+        .chat-header p {
+            color: var(--pokemon-blue);
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
         .messages {
             height: 400px;
             overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
             margin-bottom: 20px;
+            background-color: #fafafa;
         }
+
         .message {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            position: relative;
+            animation: messageAppear 0.3s ease-out;
         }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .user-message {
-            background-color: #007AFF;
+            background-color: var(--pokemon-blue);
             color: white;
-            margin-left: 20%;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
         }
+
         .bot-message {
             background-color: #E9ECEF;
-            margin-right: 20%;
+            margin-right: auto;
+            border-bottom-left-radius: 2px;
+            line-height: 1.5;
         }
+
+        .bot-message strong {
+            color: var(--pokemon-blue);
+            font-weight: bold;
+        }
+
+        .bot-message em {
+            color: var(--pokemon-red);
+            font-style: italic;
+        }
+
+        .bot-message ul,
+        .bot-message ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .bot-message li {
+            margin: 8px 0;
+        }
+
+        .bot-message p {
+            margin: 10px 0;
+        }
+
+        .bot-message .term {
+            color: var(--pokemon-red);
+            font-weight: bold;
+        }
+
+        .bot-message h1,
+        .bot-message h2,
+        .bot-message h3 {
+            color: var(--pokemon-blue);
+            margin: 15px 0 10px 0;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.1em;
+        }
+
+        .bot-message .stat-label {
+            color: var(--pokemon-red);
+            font-weight: bold;
+        }
+
         .input-container {
             display: flex;
             gap: 10px;
+            position: relative;
         }
+
         #user-input {
             flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
             font-size: 16px;
+            transition: border-color 0.3s ease;
         }
+
+        #user-input:focus {
+            outline: none;
+            border-color: var(--pokemon-yellow);
+            box-shadow: 0 0 5px rgba(255, 222, 0, 0.3);
+        }
+
         button {
-            padding: 10px 20px;
-            background-color: #FF0000;
+            padding: 12px 25px;
+            background-color: var(--pokemon-red);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
+
         button:hover {
             background-color: #CC0000;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 15px;
+            background-color: #E9ECEF;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+
+        .suggestion-chip {
+            background-color: var(--pokemon-yellow);
+            color: var(--pokemon-black);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-chip:hover {
+            background-color: var(--pokemon-red);
+            color: white;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -78,18 +229,57 @@
     <div class="chat-container">
         <div class="chat-header">
             <h1>Pokémon Chatbot</h1>
-            <p>Ask me anything about Pokémon!</p>
+            <p>Your Personal Pokémon Expert!</p>
         </div>
-        <div class="messages" id="chat-messages"></div>
+        <div class="messages" id="chat-messages">
+            <div class="message bot-message">
+                Hello! I'm your Pokémon expert chatbot. Ask me anything about Pokémon!
+            </div>
+            <div class="typing-indicator" id="typing-indicator">
+                Thinking...
+            </div>
+        </div>
         <div class="input-container">
-            <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Ask me about any Pokémon..." autocomplete="off">
             <button onclick="sendMessage()">Send</button>
+        </div>
+        <div class="suggestions">
+            <div class="suggestion-chip" onclick="usesuggestion('Tell me about Pikachu')">About Pikachu</div>
+            <div class="suggestion-chip" onclick="usesuggestion('What are the different Pokémon types?')">Pokémon Types</div>
+            <div class="suggestion-chip" onclick="usesuggestion('How do Pokémon evolve?')">Evolution</div>
+            <div class="suggestion-chip" onclick="usesuggestion('What are the strongest Pokémon?')">Strongest Pokémon</div>
         </div>
     </div>
 
     <script>
+        const md = window.markdownit({
+            html: true,
+            breaks: true,
+            linkify: true,
+            typographer: true
+        });
+
+        const defaultRender = md.renderer.rules.text || function(tokens, idx, options, env, self) {
+            return tokens[idx].content;
+        };
+
+        md.renderer.rules.text = function(tokens, idx, options, env, self) {
+            let content = tokens[idx].content;
+            
+            const terms = ['Type:', 'Ability:', 'Stats:', 'Appearance:', 'Fun Fact:'];
+            terms.forEach(term => {
+                content = content.replace(
+                    new RegExp(term, 'g'),
+                    `<span class="stat-label">${term}</span>`
+                );
+            });
+
+            return content;
+        };
+
         const messagesContainer = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
+        const typingIndicator = document.getElementById('typing-indicator');
 
         userInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -100,9 +290,24 @@
         function addMessage(message, isUser) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.textContent = message;
+            
+            if (isUser) {
+                messageDiv.textContent = message;
+            } else {
+                let formattedMessage = message
+                    .replace(/^\d+\./gm, match => `\n${match}`)
+                    .replace(/^\*/gm, match => `\n${match}`);
+
+                messageDiv.innerHTML = md.render(formattedMessage);
+            }
+            
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function usesuggestion(suggestion) {
+            userInput.value = suggestion;
+            sendMessage();
         }
 
         async function sendMessage() {
@@ -111,6 +316,8 @@
 
             addMessage(message, true);
             userInput.value = '';
+            typingIndicator.style.display = 'block';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
             try {
                 const response = await fetch('/chat', {
@@ -122,14 +329,13 @@
                 });
 
                 const data = await response.json();
+                typingIndicator.style.display = 'none';
                 addMessage(data.response, false);
             } catch (error) {
+                typingIndicator.style.display = 'none';
                 addMessage('Sorry, I encountered an error. Please try again.', false);
             }
         }
-
-        // Add welcome message
-        addMessage('Hello! I\'m your Pokémon expert chatbot. Ask me anything about Pokémon!', false);
     </script>
 </body>
 </html> 
