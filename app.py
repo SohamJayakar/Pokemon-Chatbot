@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 from pokemon_chatbot import PokemonChatbot
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 chatbot = PokemonChatbot()
 
 @app.route('/')

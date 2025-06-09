@@ -18,18 +18,23 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f0f0f0;
-            background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" fill="none" stroke="%23ddd" stroke-width="0.5"/></svg>');
+            background-image: url('/static/bg1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
         }
 
         .chat-container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: white;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             padding: 20px;
             border: 3px solid var(--pokemon-red);
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
         }
 
         .chat-header {
@@ -193,6 +198,34 @@
             border-radius: 10px;
             margin-bottom: 15px;
             animation: blink 1s infinite;
+            margin-right: auto;
+            max-width: 80px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background-color: var(--pokemon-blue);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
         }
 
         @keyframes blink {
@@ -235,9 +268,6 @@
             <div class="message bot-message">
                 Hello! I'm your Pokémon expert chatbot. Ask me anything about Pokémon!
             </div>
-            <div class="typing-indicator" id="typing-indicator">
-                Thinking...
-            </div>
         </div>
         <div class="input-container">
             <input type="text" id="user-input" placeholder="Ask me about any Pokémon..." autocomplete="off">
@@ -279,7 +309,14 @@
 
         const messagesContainer = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
-        const typingIndicator = document.getElementById('typing-indicator');
+        let typingIndicator = null;
+
+        function createTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'message bot-message typing-indicator';
+            indicator.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+            return indicator;
+        }
 
         userInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -314,8 +351,16 @@
             const message = userInput.value.trim();
             if (!message) return;
 
+            // Add user message
             addMessage(message, true);
             userInput.value = '';
+
+            // Add typing indicator
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+            typingIndicator = createTypingIndicator();
+            messagesContainer.appendChild(typingIndicator);
             typingIndicator.style.display = 'block';
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -329,10 +374,20 @@
                 });
 
                 const data = await response.json();
-                typingIndicator.style.display = 'none';
+                
+                // Remove typing indicator
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                    typingIndicator = null;
+                }
+                
+                // Add bot response
                 addMessage(data.response, false);
             } catch (error) {
-                typingIndicator.style.display = 'none';
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                    typingIndicator = null;
+                }
                 addMessage('Sorry, I encountered an error. Please try again.', false);
             }
         }
